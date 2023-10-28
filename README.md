@@ -1,2 +1,2 @@
-# Interview Task: Dockerized PostgreSQL Data Cleanup
+# Task: Dockerized PostgreSQL Data Cleanup
 This repository contains the solution for an interview task that involves using Docker to set up two containers. The first container runs a PostgreSQL database with artificial data, and the second container is a Python service/script that accesses the PostgreSQL database, filters and deletes entries older than a specified date. In addition, a bash script is provided to automate the setup and execution of the entire process.

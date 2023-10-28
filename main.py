@@ -36,7 +36,27 @@ for i in range(20):
     session.add(user)
 
 
+
+print("Created the 'users' table and inserted 20 dummy records.")
+
+
+# to delete data older than 2023, 1, 9 
+
+threshold_date = datetime(2023, 1, 9)
+
+records_to_delete = session.query(User).filter(User.registration_date < threshold_date).all()
+
+# to delete the records
+for record in records_to_delete:
+    session.delete(record)
+
+
 session.commit()
 session.close()
 
-print("Created the 'users' table and inserted 20 dummy records.")
+print(f"Deleted records where the date is older than {threshold_date}.")
+
+
+
+
+

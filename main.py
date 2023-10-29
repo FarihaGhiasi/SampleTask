@@ -1,8 +1,9 @@
-from sqlalchemy import create_engine, Column, Integer, String, Date
+from sqlalchemy import Column, Integer, String, Date
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 import random
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, date
+from sqlalchemy.exc import SQLAlchemyError
 from db import engine  
 
 # to define the SQLAlchemy model
@@ -22,41 +23,40 @@ Base.metadata.create_all(engine)
 Session = sessionmaker(bind=engine)
 session = Session()
 
-# to generate some random data
-for i in range(20):
-   
-    name = f'User_{i}'
 
-    today = datetime.now()
-    one_year_ago= today - timedelta(days=365)
-    registration_date = one_year_ago + timedelta(days=random.randint(1, 365))
+def create_users():
+    """to generate some random data"""
+    number_user_to_be_created = 30
+    for i in range(number_user_to_be_created):
+        name = f'User_{i}'
+        today = datetime.now()
+        one_year_ago = today - timedelta(days=365)
+        registration_date = one_year_ago + timedelta(
+            days=random.randint(1, 365)
+        )
+        user = User(name=name, registration_date=registration_date)
+        session.add(user)
+        session.commit()
 
+    print(f"{number_user_to_be_created} users has been created.")
     
-    user = User(name=name, registration_date=registration_date)
-    session.add(user)
+
+
+def delete_users():
+    """To delete user older than 2023, 1, 9"""
+    threshold_date = date(2023, 1, 7)
+    try:
+        with session.begin():
+            delete_query = session.query(User).filter(
+                User.registration_date < threshold_date)
+            deleted_count = delete_query.delete()
+            session.commit()
+            print(f"{deleted_count} user records has been deleted successfully.")
+    except SQLAlchemyError as e:
+        print(f"Failed to delete records: {e}")
 
 
 
-print("Created the 'users' table and inserted 20 dummy records.")
-
-
-# to delete data older than 2023, 1, 9 
-
-threshold_date = datetime(2023, 1, 9)
-
-records_to_delete = session.query(User).filter(User.registration_date < threshold_date).all()
-
-# to delete the records
-for record in records_to_delete:
-    session.delete(record)
-
-
-session.commit()
-session.close()
-
-print(f"Deleted records where the date is older than {threshold_date}.")
-
-
-
-
-
+if __name__ == "__main__":
+    create_users()
+    delete_users()
